@@ -176,52 +176,52 @@ class Database {
   };
 
   /**
-   * Query clients for a MarkerUpdate for given client. If no client is
-   * specified will return a MarkerUpdate for all clients.
+   * Query clients the location for given client. If no client is specified will
+   * return the locations of all clients.
    * @param {string=} workspaceId workspaceId of the client.
-   * @return {!Promise} Promise object with an array of MarkerUpdate objects.
+   * @return {!Promise} Promise object with an array of LocationUpdate objects.
    * @public
    */
-  getMarkerUpdates(workspaceId) {
+  getLocationUpdates(workspaceId) {
     return new Promise((resolve, reject) => {
       const sql = workspaceId ? 
-          `SELECT workspaceId, markerLocation from clients
+          `SELECT workspaceId, location from clients
           WHERE
           (EXISTS (SELECT 1 from clients WHERE workspaceId == ${workspaceId}))
           AND workspaceId = ${workspaceId};` :
-          `SELECT workspaceId, markerLocation from clients;`;
-      this.db.all(sql, (err, markerUpdates) => {
+          `SELECT workspaceId, location from clients;`;
+      this.db.all(sql, (err, locationUpdates) => {
         if (err) {
           console.error(err.message);
-          reject('Failed to get MarkerUpdates.');
+          reject('Failed to get locations.');
         } else {
-          markerUpdates.forEach((markerUpdate) => {
-            markerUpdate.markerLocation = JSON.parse(markerUpdate.markerLocation);
+          locationUpdates.forEach((locationUpdate) => {
+            locationUpdate.location = JSON.parse(locationUpdate.location);
           });
-          resolve(markerUpdates);
+          resolve(locationUpdates);
         };
       });
     });
   };
 
   /**
-   * Update markerLocation in the clients table for a given client.
-   * @param {!Object} markerUpdate The MarkerUpdate with the new
-   * MarkerLocation for a given client in JSON representation.
+   * Update the location in the clients table for a given client.
+   * @param {!Object} locationUpdate The LocationUpdate with the new
+   * location for a given client.
    * @return {!Promise} Promise object represents the success of the update.
    * @public
    */
-  updateMarker(markerUpdate) {
+  updateLocation(locationUpdate) {
     return new Promise((resolve, reject) => {
       this.db.run(
-          `INSERT INTO clients(workspaceId, lastEntryNumber, markerLocation)
+          `INSERT INTO clients(workspaceId, lastEntryNumber, location)
           VALUES(?, -1, ?)
           ON CONFLICT(workspaceId)
-          DO UPDATE SET markerLocation = ?`,
+          DO UPDATE SET location = ?`,
           [
-            markerUpdate.id,
-            JSON.stringify(markerUpdate.markerLocation),
-            JSON.stringify(markerUpdate.markerLocation)
+            locationUpdate.workspaceId,
+            JSON.stringify(locationUpdate.location),
+            JSON.stringify(locationUpdate.location)
           ],
           (err) => {
         if (err) {

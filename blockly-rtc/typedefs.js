@@ -24,7 +24,7 @@
  * An entry from the database.
  * @typedef {Object} Entry
  * @property {<!Array.<!Blockly.Event>>} events An array of Blockly Events.
- * @property {string} entryId The id assigned to an event by the client.
+ * @property {string} entryId The id assigned to an entry by the client.
  * @property {string} serverId The id assigned to an event by the server.
  */
 
@@ -36,13 +36,10 @@
  */
  
  /**
- * The location of a Marker.
- * @typedef {Object} MarkerLocation
- * @property {string} type The type of element.
- * @property {string} blockId The blockId corresponding to the Block the
- * Marker is on.
- * @property {string} fieldName The name of the field if location is of type
- * FIELD.
+ * An represents an update to the location of a user.
+ * @typedef {Object} LocationUpdate
+ * @property {string} workspaceId The workspaceId of the user.
+ * @property {Location} location The location of the user. 
  */
 
  /**

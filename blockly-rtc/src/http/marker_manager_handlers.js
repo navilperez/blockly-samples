@@ -16,49 +16,50 @@
  */
 
 /**
- * @fileoverview Endpoint APIs for passing MarkerUpdates between the client
+ * @fileoverview Endpoint APIs for passing user metadata between the client
  * and the server.
  * @author navil@google.com (Navil Perez)
  */
 
-import MarkerUpdate from '../MarkerUpdate';
+import Location from '../Location';
 
 /**
- * Get a MarkerUpdate for given client. If no client is specified will return
- * a MarkerUpdate for all clients.
+ * Get the location for given client. If no client is specified will return
+ * the locations of all clients.
  * @param {string=} workspaceId workspaceId of the client.
- * @return {!Promise} Promise object with an array of MarkerUpdate objects.
+ * @return {!Promise} Promise object with an array of LocationUpdate objects.
  * @public
  */
-export async function getMarkerUpdates(workspaceId) {
+export async function getLocationUpdates(workspaceId) {
   const response = workspaceId ? await fetch('/api/clients/query?workspaceId=' + workspaceId) :
       await fetch('/api/clients/query?');
   const responseJson = await response.json();
   if (response.status === 200) {
-    const markerUpdates = responseJson.markerUpdates
-        .map((markerUpdate) => MarkerUpdate.fromJson(markerUpdate));
-    return markerUpdates;
+    const locationUpdates = responseJson.locationUpdates;
+    locationUpdates.forEach((locationUpdate) => {
+      locationUpdate.location = Location.fromJson(locationUpdate.location);
+    });
+    return locationUpdates;
   } else {
-    throw 'Failed to get MarkerUpdates.';
+    throw 'Failed to get LocationUpdates.';
   };
 };
 
 /**
- * Update the MarkerLocation of a client in the database.
-  * @param {!MarkerUpdate} markerUpdate The MarkerUpdate with the new
-  * MarkerLocation for a given client.
+ * Update the location of a client in the database.
+  * @param {!LocationUpdate} locationUpdate The LocationUpdate with the new
+  * location for a given client.
   * @return {!Promise} Promise object representing the success of the update.
   * @public
   */
-export async function sendMarkerUpdate(markerUpdate) {
-  const markerUpdateJson = markerUpdate.toJson();
+export async function sendLocationUpdate(locationUpdate) {
   const response = await fetch('/api/clients/update', {
     method: 'PUT',
-    body: JSON.stringify({markerUpdate: markerUpdateJson})
+    body: JSON.stringify({ locationUpdate })
   });
   if (response.status === 200) {
     return;
   } else {
-    throw 'Failed to update marker.';
+    throw 'Failed to update location.';
   };
 };
